@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 5000;
@@ -9,8 +9,6 @@ const port = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
-
-
 
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.jyvsljn.mongodb.net/?retryWrites=true&w=majority`;
@@ -30,7 +28,7 @@ async function run() {
     await client.connect();
     const categoriesCollection = client.db('legoLand').collection('categories');
 
-
+    // get the sub category data 
     app.get('/categories', async(req, res)=>{
         const category = req.query.category;
         try {
@@ -40,6 +38,15 @@ async function run() {
             console.error('Error fetching data from database:', error);
             res.status(500).send('Internal Server Error');
           }
+    })
+
+    // get all single category data 
+    app.get('/categories/:id', async(req, res)=>{
+        const id = req.params.id;
+        const query = {_id: new ObjectId(id)}
+
+        const result = await categoriesCollection.findOne(query);
+        res.send(result)
     })
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
