@@ -91,6 +91,25 @@ app.get('/alltoys/:id', async(req, res)=>{
   res.send(result)
 })
 
+// my toys route 
+
+app.get('/mytoys/:email',async(req, res)=>{
+  console.log(req.params.email);
+  const sortOrder = req.query.sort || '';
+  try {
+    const result = await allToysCollection
+      .find({sellerEmail: req.params.email})
+      .sort({ price: sortOrder === 'asc' ? 1 : -1 })
+      .toArray();
+
+    res.send(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
+  
+})
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
