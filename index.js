@@ -37,7 +37,7 @@ async function run() {
             res.send(data);
           } catch (error) {
             console.error('Error fetching data from database:', error);
-            res.send('Internal Server Error');
+            res.status(500).json({ error: 'Internal Server Error' });
           }
     })
 
@@ -56,10 +56,7 @@ async function run() {
       res.send(result);
   })
 // all toys display routes 
-//   app.get('/alltoys', async(req, res)=>{
-//     const result = await allToysCollection.find({}).sort({ price: 1 }).limit(20).toArray();
-//     res.send(result)
-// });
+
 app.get('/alltoys', async (req, res) => {
   const sortOrder = req.query.sort || '';
   const searchTerm = req.query.search || '';
@@ -84,6 +81,15 @@ app.get('/alltoys', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
+
+// single toy route 
+app.get('/alltoys/:id', async(req, res)=>{
+  const id = req.params.id;
+  const query = {_id: new ObjectId(id)}
+
+  const result = await allToysCollection.findOne(query);
+  res.send(result)
+})
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
