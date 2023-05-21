@@ -56,9 +56,33 @@ async function run() {
       res.send(result);
   })
 // all toys display routes 
-  app.get('/alltoys', async(req, res)=>{
-    const result = await allToysCollection.find({}).limit(20).toArray();
-    res.send(result)
+//   app.get('/alltoys', async(req, res)=>{
+//     const result = await allToysCollection.find({}).sort({ price: 1 }).limit(20).toArray();
+//     res.send(result)
+// });
+app.get('/alltoys', async (req, res) => {
+  const sortOrder = req.query.sort || '';
+  const searchTerm = req.query.search || '';
+
+  let query = {};
+
+  // Apply search filter if searchTerm is provided
+  if (searchTerm) {
+    query = { toyName: { $regex: searchTerm, $options: 'i' } };
+  }
+
+  try {
+    const result = await allToysCollection
+      .find(query)
+      .sort({ price: sortOrder === 'asc' ? 1 : -1 })
+      .limit(20)
+      .toArray();
+
+    res.send(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
 });
 
     // Send a ping to confirm a successful connection
